@@ -36,7 +36,7 @@ namespace WebUI {
         WiFiFallback,  // Try STA and fall back to AP if STA fails
     };
 
-    enum_opt_t wifiModeOptions = {
+    const enum_opt_t wifiModeOptions = {
         { "Off", WiFiOff },
         { "STA", WiFiSTA },
         { "AP", WiFiAP },
@@ -91,7 +91,7 @@ namespace WebUI {
         WiFiCountryUS,
     };
 
-    enum_opt_t wifiContryOptions = {
+    const enum_opt_t wifiContryOptions = {
         { "01", WiFiCountry01 }, { "AT", WiFiCountryAT }, { "AU", WiFiCountryAU }, { "BE", WiFiCountryBE }, { "BG", WiFiCountryBG },
         { "BR", WiFiCountryBR }, { "CA", WiFiCountryCA }, { "CH", WiFiCountryCH }, { "CN", WiFiCountryCN }, { "CY", WiFiCountryCY },
         { "CZ", WiFiCountryCZ }, { "DE", WiFiCountryDE }, { "DK", WiFiCountryDK }, { "EE", WiFiCountryEE }, { "ES", WiFiCountryES },
@@ -126,12 +126,12 @@ namespace WebUI {
 
     HostnameSetting* wifi_hostname;
 
-    enum_opt_t staModeOptions = {
+    const enum_opt_t staModeOptions = {
         { "DHCP", DHCP_MODE },
         { "Static", STATIC_MODE },
     };
 
-    enum_opt_t staSecurityOptions = {
+    const enum_opt_t staSecurityOptions = {
         { "OPEN", WIFI_AUTH_OPEN },
         { "WEP", WIFI_AUTH_WEP },
         { "WPA-PSK", WIFI_AUTH_WPA_PSK },
@@ -140,7 +140,9 @@ namespace WebUI {
         { "WPA2-ENTERPRISE", WIFI_AUTH_WPA2_ENTERPRISE },
     };
 
-    static void print_mac(Channel& out, const char* prefix, const char* mac) { log_stream(out, prefix << " (" << mac << ")"); }
+    static void print_mac(Channel& out, const char* prefix, const char* mac) {
+        log_stream(out, prefix << " (" << mac << ")");
+    }
 
     static Error showIP(const char* parameter, AuthenticationLevel auth_level, Channel& out) {  // ESP111
         log_stream(out, parameter << IP_string(WiFi.getMode() == WIFI_STA ? WiFi.localIP() : WiFi.softAPIP()));
@@ -540,7 +542,8 @@ namespace WebUI {
     std::string WiFiConfig::station_info() {
         std::string result;
 
-        if ((WiFi.getMode() == WIFI_MODE_STA) || (WiFi.getMode() == WIFI_MODE_APSTA)) {
+        auto mode = WiFi.getMode();
+        if (mode == WIFI_MODE_STA || mode == WIFI_MODE_APSTA) {
             result += "Mode=STA:SSID=";
             result += WiFi.SSID().c_str();
             result += ":Status=";
@@ -558,7 +561,8 @@ namespace WebUI {
     std::string WiFiConfig::ap_info() {
         std::string result;
 
-        if ((WiFi.getMode() == WIFI_MODE_AP) || (WiFi.getMode() == WIFI_MODE_APSTA)) {
+        auto mode = WiFi.getMode();
+        if (mode == WIFI_MODE_AP || mode == WIFI_MODE_APSTA) {
             if (WiFi.getMode() == WIFI_MODE_APSTA) {
                 result += "]\n[MSG:";
             }
@@ -673,26 +677,16 @@ namespace WebUI {
         //stop active service
         wifi_services.end();
         //Sanity check
-        if ((WiFi.getMode() == WIFI_STA) || (WiFi.getMode() == WIFI_AP_STA)) {
+        auto mode = WiFi.getMode();
+        if (mode == WIFI_STA || mode == WIFI_AP_STA) {
             WiFi.disconnect();
         }
-        if ((WiFi.getMode() == WIFI_AP) || (WiFi.getMode() == WIFI_AP_STA)) {
+
+        if (mode == WIFI_AP || mode == WIFI_AP_STA) {
             WiFi.softAPdisconnect();
         }
 
         WiFi.enableAP(false);
-
-        // Set the number of receive and transmit buffers that the
-        // WiFi stack can use.  Making these numbers too large
-        // can eat up a lot of memory at 1.6K per buffer.  It
-        // can be especially bad when there are many dynamic buffers,
-        // If there are too few Rx buffers, file upload can fail,
-        // possibly due to IP packet fragments getting lost.  The limit
-        // for what works seems to be 4 static, 4 dynamic.
-        // allowing external network traffic to use a lot of the heap.
-        // The bawin parameters are for AMPDU aggregation.
-        // rx: static dynamic bawin  tx: static dynamic bawin cache
-        WiFi.setBuffers(4, 5, 0, 4, 0, 0, 4);
 
         //SSID
         const char* SSID = wifi_sta_ssid->get();
@@ -872,7 +866,9 @@ namespace WebUI {
     /**
      * End WiFi
      */
-    void WiFiConfig::end() { StopWiFi(); }
+    void WiFiConfig::end() {
+        StopWiFi();
+    }
 
     /**
      * Reset ESP
@@ -892,12 +888,16 @@ namespace WebUI {
         }
         log_info("WiFi reset done");
     }
-    bool WiFiConfig::isOn() { return !(WiFi.getMode() == WIFI_MODE_NULL); }
+    bool WiFiConfig::isOn() {
+        return !(WiFi.getMode() == WIFI_MODE_NULL);
+    }
 
     /**
      * Handle not critical actions that must be done in sync environment
      */
-    void WiFiConfig::handle() { wifi_services.handle(); }
+    void WiFiConfig::handle() {
+        wifi_services.handle();
+    }
 
     // Used by js/scanwifidlg.js
 
@@ -945,6 +945,8 @@ namespace WebUI {
         return Error::Ok;
     }
 
-    WiFiConfig::~WiFiConfig() { end(); }
+    WiFiConfig::~WiFiConfig() {
+        end();
+    }
 }
 #endif

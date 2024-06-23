@@ -121,6 +121,10 @@ static uint8_t plan_prev_block_index(uint8_t block_index) {
 
 */
 static void planner_recalculate() {
+    if (block_buffer_head == block_buffer_tail) {
+        // Nothing to do; planner buffer is empty.
+        return;
+    }
     // Initialize block index to the last block in the planner buffer.
     uint8_t block_index = plan_prev_block_index(block_buffer_head);
     // Bail. Can't do anything with one only one plan-able block.
@@ -289,6 +293,9 @@ void plan_update_velocity_profile_parameters() {
         block_index        = plan_next_block_index(block_index);
     }
     pl.previous_nominal_speed = prev_nominal_speed;  // Update prev nominal speed for next incoming block.
+    if (block_buffer_tail != block_buffer_head) {
+        plan_cycle_reinitialize();
+    }
 }
 
 bool plan_buffer_line(float* target, plan_line_data_t* pl_data) {

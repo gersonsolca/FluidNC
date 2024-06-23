@@ -70,7 +70,7 @@ const char* Pin::parse(std::string_view pin_str, Pins::PinDetail*& pinImplementa
     }
 
     // Build an options parser:
-    Pins::PinOptionsParser parser(pin_str.cbegin(), pin_str.cend());
+    Pins::PinOptionsParser parser(pin_str);
 
     // Build this pin:
     if (string_util::equal_ignore_case(prefix, "gpio")) {
@@ -135,7 +135,7 @@ Pin Pin::create(std::string_view str) {
             return Pin(pinImplementation);
         }
     } catch (const AssertionFailed& ex) {  // We shouldn't get here under normal circumstances.
-        log_error("ERR: " << str << " - " << ex.what());
+        log_error(str << " - " << ex.what());
         Assert(false, "");
         // return Pin(new Pins::ErrorPinDetail(str.str()));
     }

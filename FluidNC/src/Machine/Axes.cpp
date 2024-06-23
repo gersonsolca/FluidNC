@@ -8,7 +8,7 @@
 #include "MachineConfig.h"  // config->
 #include "../Limits.h"
 
-EnumItem axisType[] = { { 0, "X" }, { 1, "Y" }, { 2, "Z" }, { 3, "A" }, { 4, "B" }, { 5, "C" }, EnumItem(0) };
+const EnumItem axisType[] = { { 0, "X" }, { 1, "Y" }, { 2, "Z" }, { 3, "A" }, { 4, "B" }, { 5, "C" }, EnumItem(0) };
 
 namespace Machine {
     MotorMask Axes::posLimitMask = 0;
@@ -286,8 +286,9 @@ namespace Machine {
     }
 
     bool Axes::namesToMask(const char* names, AxisMask& mask) {
-        bool retval = true;
-        for (int i = 0; i < strlen(names); i++) {
+        bool       retval   = true;
+        const auto lenNames = strlen(names);
+        for (int i = 0; i < lenNames; i++) {
             char  axisName = toupper(names[i]);
             char* pos      = index(_names, axisName);
             if (!pos) {

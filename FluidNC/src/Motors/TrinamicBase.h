@@ -16,7 +16,7 @@ namespace MotorDrivers {
         StallGuard  = 2,  // coolstep plus stall indication
     };
 
-    extern EnumItem trinamicModes[];
+    extern const EnumItem trinamicModes[];
 
     class TrinamicBase : public StandardStepper {
     private:
@@ -25,7 +25,7 @@ namespace MotorDrivers {
         static std::vector<TrinamicBase*> _instances;
 
     protected:
-        uint32_t calc_tstep(float speed, float percent);
+        uint32_t calc_tstep(int percent);
 
         bool         _disable_state_known = false;  // we need to always set the state least once.
         bool         _has_errors;
@@ -50,7 +50,7 @@ namespace MotorDrivers {
         uint8_t _toff_stealthchop = 5;
         uint8_t _toff_coolstep    = 3;
 
-        const double fclk = 12700000.0;  // Internal clock Approx (Hz) used to calculate TSTEP from homing rate
+        static constexpr double fclk = 12700000.0;  // Internal clock Approx (Hz) used to calculate TSTEP from homing rate
 
         float        holdPercent();
         bool         report_open_load(bool ola, bool olb);

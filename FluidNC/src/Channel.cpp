@@ -104,9 +104,7 @@ void Channel::autoReportGCodeState() {
 void Channel::autoReport() {
     if (_reportInterval) {
         auto thisProbeState = config->_probe->get_state();
-        if (thisProbeState != _lastProbe) {
-            report_recompute_pin_string();
-        }
+        report_recompute_pin_string();
         if (_reportWco || !state_is(_lastState) || thisProbeState != _lastProbe || _lastPinString != report_pin_string ||
             (motionState() && (int32_t(xTaskGetTickCount()) - _nextReportTime) >= 0)) {
             if (_reportWco) {
@@ -335,7 +333,9 @@ bool Channel::is_visible(const std::string& stem, const std::string& extension, 
     if (isdir) {
         return true;
     }
-    std::string_view extensions(_gcode_extensions);
+
+    // common gcode extensions
+    std::string_view extensions(".g .gc .gco .gcode .nc .ngc .ncc .txt .cnc .tap");
     int              pos = 0;
     while (extensions.length()) {
         auto             next_pos       = extensions.find_first_of(' ', pos);
