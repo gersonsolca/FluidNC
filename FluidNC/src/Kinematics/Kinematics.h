@@ -29,6 +29,8 @@ You will be ablr to add your kinematic using the config file.
 
 */
 
+#define my_delta_kinematics
+
 namespace Kinematics {
     class KinematicSystem;
 
@@ -105,4 +107,5 @@ namespace Kinematics {
     };
 
     using KinematicsFactory = Configuration::GenericFactory<KinematicSystem>;
+
 };
