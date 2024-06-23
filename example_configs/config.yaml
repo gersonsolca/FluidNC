@@ -1,5 +1,5 @@
 name: SpiderMic
-board: None
+board: Fysect E4
 uart1:
   txd_pin: gpio.22
   rxd_pin: gpio.21
@@ -28,7 +28,7 @@ axes:
         step_pin: gpio.27:pu
         direction_pin: gpio.26
         uart_num: 1
-        addr: 0
+        addr: 1
         stallguard_debug: true
         run_mode: Stallguard
         homing_mode: Stallguard
@@ -62,7 +62,7 @@ axes:
         step_pin: gpio.33:pu
         direction_pin: gpio.32:low
         uart_num: 1
-        addr: 1
+        addr: 3
         stallguard_debug: true
         run_mode: Stallguard
         homing_mode: Stallguard
@@ -83,7 +83,7 @@ axes:
         step_pin: gpio.14:pu
         direction_pin: gpio.12:low
         uart_num: 1
-        addr: 2
+        addr: 0
         stallguard_debug: true
         run_mode: Stallguard
         homing_mode: Stallguard
@@ -104,7 +104,7 @@ axes:
         step_pin: gpio.16:pu
         direction_pin: gpio.17
         uart_num: 1
-        addr: 3
+        addr: 2
         run_mode: Stallguard
         homing_mode: Stallguard
         use_enable: true
