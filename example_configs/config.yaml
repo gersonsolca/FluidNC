@@ -5,18 +5,11 @@ uart1:
   rxd_pin: gpio.21
   baud: 115200
   mode: 8N1
-#kinematics:
-#  spider_mic:
-#    R_b: 6.0
-#    max_x: 372.0
-#    max_y: 372.0
-#    _kinematic_segment_len_mm: 1.0
-#    _softLimits: false
 axes:
   x:
     steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    max_rate_mm_per_min: 10000
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 1000
     motor0:
       limit_all_pin: NO_PIN
@@ -33,24 +26,13 @@ axes:
         run_mode: Stallguard
         homing_mode: Stallguard
         use_enable: true
-        stallguard: 15
-#        cs_pin: NO_PIN
-#        r_sense_ohms: 0.110
-#        run_amps: 1.000
-#        hold_amps: 0.500
-#        microsteps: 16
-#        stallguard: 0
-#        stallguard_debug: false
-#        toff_disable: 0
-#        toff_stealthchop: 5
-#        toff_coolstep: 3
-#        homing_mode: StealthChop
-#        homing_amps: 0.50
-#        disable_pin: NO_PIN
+        stallguard: 6
+        hold_amps: 0.5
+        r_sense_ohms: 0.15
   y:
     steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    max_rate_mm_per_min: 10000
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 1000
     motor0:
       limit_all_pin: NO_PIN
@@ -67,11 +49,12 @@ axes:
         run_mode: Stallguard
         homing_mode: Stallguard
         use_enable: true
-        stallguard: 15
+        stallguard: 6
+        r_sense_ohms: 0.15
   z:
     steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    max_rate_mm_per_min: 10000
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 1000
     motor0:
       limit_all_pin: NO_PIN
@@ -88,11 +71,12 @@ axes:
         run_mode: Stallguard
         homing_mode: Stallguard
         use_enable: true
-        stallguard: 15
+        stallguard: 6
+        r_sense_ohms: 0.15
   a:
     steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    max_rate_mm_per_min: 10000
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 1000
     motor0:
       limit_all_pin: NO_PIN
@@ -109,7 +93,8 @@ axes:
         homing_mode: Stallguard
         use_enable: true
         stallguard_debug: true
-        stallguard: 15
+        stallguard: 6
+        r_sense_ohms: 0.15
 stepping:
   engine: RMT
   idle_ms: 250
