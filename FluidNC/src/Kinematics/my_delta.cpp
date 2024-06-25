@@ -299,7 +299,7 @@ namespace Kinematics {
 
     // Configuration registration
     namespace {
-        KinematicsFactory::InstanceBuilder<SpiderMic> registration("spider_mic");
+        KinematicsFactory::InstanceBuilder<SpiderMic> registration("SpiderMic");
     }
 }
 
