@@ -8,6 +8,7 @@ uart1:
 kinematics:
   SpiderMic:
     R_b: 6
+    # Ideal value R_b = 20 / π -> steps_per_mm = 80
     max_x: 370
     max_y: 370
     _kinematic_segment_len_mm: 1.0
@@ -15,93 +16,89 @@ kinematics:
 axes:
   x:
     steps_per_mm: 85
-    #200 * 16 / (2 * π * r) = 100 * 16 / (π * r)
-    max_rate_mm_per_min: 10000
-    acceleration_mm_per_sec2: 100
+    # 200 * 16 / (6 * 2π) = 800 / (3 * π)
+    max_rate_mm_per_min: 12000
+    acceleration_mm_per_sec2: 150
     max_travel_mm: 400
     soft_limits: false
     motor0:
-      #gpio.34 NO_PIN
       limit_all_pin: NO_PIN
       limit_neg_pin: gpio.34
       limit_pos_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1
+      pulloff_mm: 2
       tmc_2209:
         step_pin: gpio.27:pu
         direction_pin: gpio.26
         uart_num: 1
         addr: 1
         stallguard_debug: true
-        run_mode: Stallguard
-        homing_mode: Stealthchop
-        #Stealthchop CoolStep Stallguard
+        run_mode: SpreadCycle
+        homing_mode: Stallguard
         use_enable: false
-        stallguard: 15
+        stallguard: 31
         hold_amps: 0.5
         r_sense_ohms: 0.15
     homing:
       cycle: 1
       allow_single_axis: true
       positive_direction: false
-      mpos_mm: 0.000000
-      feed_mm_per_min: 200
-      #700
-      seek_mm_per_min: 300
-      #1000
-      settle_ms: 250
+      mpos_mm: 0
+      feed_mm_per_min: 650
+      seek_mm_per_min: 650
+      settle_ms: 1000
       seek_scaler: 1.1
       feed_scaler: 1.1
   y:
-    steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    steps_per_mm: 85
+    max_rate_mm_per_min: 12000
+    acceleration_mm_per_sec2: 150
     max_travel_mm: 400
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
-      limit_neg_pin: NO_PIN
+      limit_neg_pin: gpio.35
       limit_pos_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1
+      pulloff_mm: 2
       tmc_2209:
         step_pin: gpio.33:pu
         direction_pin: gpio.32:low
         uart_num: 1
         addr: 3
         stallguard_debug: true
-        run_mode: Stallguard
+        run_mode: SpreadCycle
         homing_mode: Stallguard
         use_enable: false
-        stallguard: 6
+        stallguard: 31
         r_sense_ohms: 0.15
   z:
-    steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    steps_per_mm: 85
+    max_rate_mm_per_min: 12000
+    acceleration_mm_per_sec2: 150
     max_travel_mm: 400
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
-      limit_neg_pin: NO_PIN
+      limit_neg_pin: gpio.23
       limit_pos_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1
+      pulloff_mm: 2
       tmc_2209:
         step_pin: gpio.14:pu
         direction_pin: gpio.12:low
         uart_num: 1
         addr: 0
         stallguard_debug: true
-        run_mode: Stallguard
+        run_mode: SpreadCycle
         homing_mode: Stallguard
         use_enable: false
-        stallguard: 6
+        stallguard: 31
         r_sense_ohms: 0.15
   a:
-    steps_per_mm: 80
-    max_rate_mm_per_min: 1000
-    acceleration_mm_per_sec2: 25
+    steps_per_mm: 85
+    max_rate_mm_per_min: 12000
+    acceleration_mm_per_sec2: 150
     max_travel_mm: 400
     soft_limits: false
     motor0:
@@ -113,14 +110,15 @@ axes:
       tmc_2209:
         step_pin: gpio.16:pu
         direction_pin: gpio.17
-        uart_num: 1
+        uart_num: 2
         addr: 2
-        run_mode: Stallguard
+        run_mode: SpreadCycle
         homing_mode: Stallguard
         use_enable: false
         stallguard_debug: true
-        stallguard: 6
+        stallguard: 31
         r_sense_ohms: 0.15
+  homing_runs: 2
 stepping:
   engine: RMT
   idle_ms: 250

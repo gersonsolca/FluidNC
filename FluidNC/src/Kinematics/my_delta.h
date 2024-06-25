@@ -64,7 +64,7 @@ namespace Kinematics {
 
     private:
     //  Config items
-    float R_b   = 6.0;   // bobbin inner radius on which thread is rolled [mm]
+    float R_b   = 6.0;   // bobbin inner radius on which thread is rolled [mm], ideal value R_b = 20 / π -> steps_per_mm = 80
     float max_x = 372.0; // ~ (370 - 372) side lenght of field [mm]
     float max_y = 372.0; // ~ (370 - 372) side width of field [mm]
 
