@@ -19,8 +19,6 @@ Use some of the others as an example. Be sure to have the code for the config fi
 
 */
 
-#define my_delta_kinematics
-
 namespace Kinematics {
     class KinematicSystem;
 
