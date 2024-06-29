@@ -1,25 +1,37 @@
 name: SpiderMic
 board: Fysect E4
+
 uart1:
   txd_pin: gpio.22
   rxd_pin: gpio.21
   baud: 115200
   mode: 8N1
+
+stepping:
+  engine: RMT
+  idle_ms: 250
+  pulse_us: 4
+  dir_delay_us: 0
+  disable_delay_us: 0
+
 kinematics:
   SpiderMic:
-    R_b: 6
-    # Ideal value R_b = 20 / π -> steps_per_mm = 80
-    max_x: 370
-    max_y: 370
-    _kinematic_segment_len_mm: 1.0
-    _softLimits: false
+    #R_b: 6
+    #max_x: 370
+    #max_y: 370
+    kinematic_segment_len_mm: 1.0
+    #softLimits: false
+
 axes:
+  shared_stepper_disable_pin: gpio.25
+  homing_runs: 2
   x:
     steps_per_mm: 85
     # 200 * 16 / (6 * 2π) = 800 / (3 * π)
     max_rate_mm_per_min: 12000
     acceleration_mm_per_sec2: 150
-    max_travel_mm: 400
+    max_travel_mm: 526
+    # sqrt(pow(_max_x, 2) + pow(_max_y, 2))
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
@@ -34,6 +46,7 @@ axes:
         addr: 1
         stallguard_debug: true
         run_mode: SpreadCycle
+        # run_mode: StealthChop run_amps: 0.500
         homing_mode: Stallguard
         use_enable: false
         stallguard: 31
@@ -53,7 +66,7 @@ axes:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
     acceleration_mm_per_sec2: 150
-    max_travel_mm: 400
+    max_travel_mm: 526
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
@@ -72,11 +85,21 @@ axes:
         use_enable: false
         stallguard: 31
         r_sense_ohms: 0.15
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 0
+      feed_mm_per_min: 650
+      seek_mm_per_min: 650
+      settle_ms: 1000
+      seek_scaler: 1.1
+      feed_scaler: 1.1
   z:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
     acceleration_mm_per_sec2: 150
-    max_travel_mm: 400
+    max_travel_mm: 526
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
@@ -95,11 +118,21 @@ axes:
         use_enable: false
         stallguard: 31
         r_sense_ohms: 0.15
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 0
+      feed_mm_per_min: 650
+      seek_mm_per_min: 650
+      settle_ms: 1000
+      seek_scaler: 1.1
+      feed_scaler: 1.1
   a:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
     acceleration_mm_per_sec2: 150
-    max_travel_mm: 400
+    max_travel_mm: 526
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
@@ -110,7 +143,7 @@ axes:
       tmc_2209:
         step_pin: gpio.16:pu
         direction_pin: gpio.17
-        uart_num: 2
+        uart_num: 1
         addr: 2
         run_mode: SpreadCycle
         homing_mode: Stallguard
@@ -118,14 +151,13 @@ axes:
         stallguard_debug: true
         stallguard: 31
         r_sense_ohms: 0.15
-  homing_runs: 2
-stepping:
-  engine: RMT
-  idle_ms: 250
-  pulse_us: 4
-  dir_delay_us: 0
-  disable_delay_us: 0
-spi:
-  miso_pin: gpio.19:pd
-  mosi_pin: gpio.23:pd
-  sck_pin: gpio.18:pd
+    homing:
+      cycle: 1
+      allow_single_axis: true
+      positive_direction: false
+      mpos_mm: 0
+      feed_mm_per_min: 650
+      seek_mm_per_min: 650
+      settle_ms: 1000
+      seek_scaler: 1.1
+      feed_scaler: 1.1

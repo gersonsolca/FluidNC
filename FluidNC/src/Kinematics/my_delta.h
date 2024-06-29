@@ -1,24 +1,13 @@
-#ifdef my_delta_kinematics
-
 #pragma once
 
 /*
-	my_delta.h
+    my_delta.h
 
-	This is a kinematic system to move a puck on an horizontal plane with four strings spanning from the vertices of a rectangular
+    This is a kinematic system to move a puck on an horizontal plane with four strings spanning from the vertices of a rectangular frame
 */
 
 #include "Kinematics.h"
 #include "Cartesian.h"
-
-#include <cmath>
-
-// M_PI is not defined in standard C/C++ but some compilers
-// support it anyway.  The following suppresses Intellisense
-// problem reports.
-#ifndef M_PI
-#    define M_PI 3.14159265358979323846
-#endif
 
 namespace Kinematics {
 
@@ -43,17 +32,17 @@ namespace Kinematics {
         virtual void constrain_jog(float* cartesian, plan_line_data_t* pl_data, float* position) override;
         virtual bool invalid_line(float* cartesian) override;
         virtual bool invalid_arc(float*            target,
-                                 plan_line_data_t* pl_data,
-                                 float*            position,
-                                 float             center[3],
-                                 float             radius,
-                                 size_t            caxes[3],
-                                 bool              is_clockwise_arc) override;
+                                plan_line_data_t* pl_data,
+                                float*            position,
+                                float             center[3],
+                                float             radius,
+                                size_t            caxes[3],
+                                bool              is_clockwise_arc) override;
 
         void releaseMotors(AxisMask axisMask, MotorMask motors) override;
 
         // Configuration handlers:
-        //void         validate() const override {}
+        void         validate() override {}
         virtual void group(Configuration::HandlerBase& handler) override;
         void         afterParse() override {}
 
@@ -63,20 +52,28 @@ namespace Kinematics {
         ~SpiderMic() {}
 
     private:
-    //  Config items
-    float R_b   = 6.0;   // bobbin inner radius on which thread is rolled [mm], ideal value R_b = 20 / π -> steps_per_mm = 80
-    float max_x = 372.0; // ~ (370 - 372) side lenght of field [mm]
-    float max_y = 372.0; // ~ (370 - 372) side width of field [mm]
+    // State
+    float last_motor_angles[MAX_N_AXIS]; // Save motor positions for calculations
+    float last_cartesian[MAX_N_AXIS];    // Save cartesian position for calculations
 
-    float _kinematic_segment_len_mm = 1.0;  // the maximun segment length the move is broken into
+    //  Parameters
+    float _R_b                      = 6.0;   // bobbin inner radius on which thread is rolled [mm], ideal value R_b = 20 / π -> steps_per_mm = 80
+    float _max_x                    = 372.0; // ~ (370 - 372) side lenght of field [mm]
+    float _max_y                    = 372.0; // ~ (370 - 372) side width of field [mm]
+    float _kinematic_segment_len_mm = 1.0;   // the maximun segment length the move is broken into
     bool  _softLimits               = false;
-    float _homing_mpos              = sqrt(pow(max_x / 2, 2) + pow(max_y / 2, 2));
+
+    float _max_l;
+    float _homing_mpos;
+
+    // Constants for calculations
+    // M_PI is not defined in standard C/C++ but some compilers support it anyway.  The following suppresses Intellisense problem reports.
+    #ifndef M_PI
+    #    define M_PI 3.14159265358979323846
+    #endif
+    float C_b  = _R_b * M_PI / 180.0;
     
-
-    float two_axis_dist(float* point1, float* point2);
-
     protected:
     };
+    
 }  //  namespace Kinematics
-
-#endif
