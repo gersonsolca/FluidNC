@@ -17,19 +17,7 @@ my_delta.cpp
 
 Use some of the others as an example. Be sure to have the code for the config file.
 
-Surround all the code in both files with
-#ifdef my_delta_kinematics
-
-#endif
-
-Add a #define to this file for your kinematic
-#define my_delta_kinematics
-
-You will be ablr to add your kinematic using the config file.
-
 */
-
-#define my_delta_kinematics
 
 namespace Kinematics {
     class KinematicSystem;
