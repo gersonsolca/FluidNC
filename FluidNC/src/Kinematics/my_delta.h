@@ -58,12 +58,15 @@ namespace Kinematics {
 
     //  Parameters
     float _R_b                      = 6.0;   // bobbin inner radius on which thread is rolled [mm], ideal value R_b = 20 / π -> steps_per_mm = 80
-    float _max_x                    = 372.0; // ~ (370 - 372) side lenght of field [mm]
-    float _max_y                    = 372.0; // ~ (370 - 372) side width of field [mm]
     float _kinematic_segment_len_mm = 1.0;   // the maximun segment length the move is broken into
     bool  _softLimits               = false;
+    float _x_min                    = 0;
+    float _x_max                    = 372.0; // ~ (370 - 372) side lenght of field [mm]
+    float _y_min                    = 0;
+    float _y_max                    = 372.0; // ~ (370 - 372) side width of field [mm]
 
-    float _max_l;
+    float _d1_max;
+    float _d2_max;
     float _homing_mpos;
 
     // Constants for calculations
