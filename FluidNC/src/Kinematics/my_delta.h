@@ -57,11 +57,20 @@ namespace Kinematics {
     float last_cartesian_mm[MAX_N_AXIS];    // Save cartesian position for calculations
 
     //  Parameters
+<<<<<<< HEAD
     float _kinematic_segment_len_mm = 1;    // the maximun segment length the move is broken into
     float _x_max                    = 374;  // ~ (374 - 375) side lenght of field [mm]
     float _y_max                    = 374;  // ~ (374 - 375) side width of field [mm]
     bool  _softLimits               = false;
     float _softLimits_mm            = 100;  // Size of the soft limits from the center
+=======
+    float _kinematic_segment_len_mm = 1;   // the maximun segment length the move is broken into
+    bool  _softLimits               = false;
+    float _x_min                    = 0;
+    float _x_max                    = 374; // ~ (374 - 375) side lenght of field [mm]
+    float _y_min                    = 0;
+    float _y_max                    = 374; // ~ (374 - 375) side width of field [mm]
+>>>>>>> 91a7b666 (movement debugged, correct distances)
     
     protected:
     };
