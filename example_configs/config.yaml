@@ -46,6 +46,8 @@ kinematics:
 =======
 >>>>>>> 91a7b666 (movement debugged, correct distances)
     kinematic_segment_len_mm: 1.0
+    x_max_mm: 374
+    y_max_mm: 374
     softLimits: false
     # limits ingnored if softLimits is false
     x_min_mm: 0

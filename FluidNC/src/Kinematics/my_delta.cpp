@@ -63,7 +63,6 @@ namespace Kinematics {
     }
 
     void SpiderMic::init_position() {
-<<<<<<< HEAD
         // Machine starts at the center, cartesian (_x_max*0.5, _y_max*0.5)
         // Each motor starts in the middle, motor distance (sqrt(pow(_x_max, 2) + pow(_y_max, 2))*0.25)
         last_cartesian_mm[X_AXIS] = _x_max * 0.5;
@@ -75,27 +74,13 @@ namespace Kinematics {
         }
 
         Homing::set_mpos();
-=======
-        // Set motor positions
-        for (size_t axis = X_AXIS; axis <= A_AXIS; axis++) {
-            last_motor_angles[axis] = sqrt(pow(_x_max, 2) + pow(_y_max, 2)) / 2 + sqrt(pow(_x_min, 2) + pow(_y_min, 2));
-        }
-        
-        // Sets cartesian position
-        last_cartesian[X_AXIS] = (_x_min + _x_max) / 2;
-        last_cartesian[Y_AXIS] = (_y_min + _y_max) / 2;
->>>>>>> 91a7b666 (movement debugged, correct distances)
     }
 
     bool SpiderMic::invalid_line(float* cartesian) {
         if (!_softLimits)
             return false;
 
-<<<<<<< HEAD
         if (!transform_cartesian_to_motors(last_motor_mm, cartesian)) {
-=======
-        if (!transform_cartesian_to_motors(last_motor_angles, cartesian)) {
->>>>>>> 91a7b666 (movement debugged, correct distances)
             limit_error();
             return true;
         }
@@ -131,15 +116,8 @@ namespace Kinematics {
     }
 
     bool SpiderMic::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
-<<<<<<< HEAD
         float motor_angles_mm[4];                       // Dummy motor angles
         float seg_target_mm[2];                         // The target of the current segment
-=======
-        //auto axes   = config->_axes;
-        //auto n_axis = axes->_numberAxis;
-        float motor_angles[4];                          // 
-        float seg_target[2];                            // The target of the current segment
->>>>>>> 91a7b666 (movement debugged, correct distances)
         float cartesian_feed_rate = pl_data->feed_rate; // save original feed rate
 
         // Check if start position is in the work area
@@ -183,24 +161,15 @@ namespace Kinematics {
             log_debug("Segment target (" << seg_target_mm[X_AXIS] << "," << seg_target_mm[Y_AXIS] << ")");
 
             // Calculate motor movement angles
-<<<<<<< HEAD
             if (!transform_cartesian_to_motors(motor_angles_mm, seg_target_mm)) {
                 log_error("Kinematic error. Motors (" << motor_angles_mm[X_AXIS] << "," << motor_angles_mm[Y_AXIS] << "," << motor_angles_mm[Z_AXIS] << "," << motor_angles_mm[A_AXIS] << ")");
-=======
-            if (!transform_cartesian_to_motors(motor_angles, seg_target)) {
-                log_error("Kinematic error. Motors (" << motor_angles[X_AXIS] << "," << motor_angles[Y_AXIS] << "," << motor_angles[Z_AXIS] << "," << motor_angles[A_AXIS] << ")");
->>>>>>> 91a7b666 (movement debugged, correct distances)
                 return false;
             }
 
             // Adjust feedrate by the ratio of the segment lengths in motor and cartesian spaces, accounting for all axes. Rapid motions ignore feedrate
             // T=D/V, Tcart=Tmotor, Dcart/Vcart=Dmotor/Vmotor, Vmotor = Dmotor*(Vcart/Dcart)
             if (!pl_data->motion.rapidMotion) {
-<<<<<<< HEAD
                 float motor_segment_dist   = vector_distance(last_motor_mm, motor_angles_mm, 4);
-=======
-                float motor_segment_length   = vector_distance(last_motor_angles, motor_angles, 4);
->>>>>>> 91a7b666 (movement debugged, correct distances)
                 float cartesian_segment_dist = cartesian_dist / segment_count;
                 pl_data->feed_rate           = cartesian_feed_rate * motor_segment_dist / cartesian_segment_dist;
             }
@@ -213,19 +182,13 @@ namespace Kinematics {
 
             // Save angles for next distance calculations
             // This is after mc_line() so that we do not update last_angle if the segment was discarded.
-<<<<<<< HEAD
             copyAxes(last_motor_mm, motor_angles_mm);
             copyAxes(last_cartesian_mm, seg_target_mm);
-=======
-            copyAxes(last_motor_angles, motor_angles);
-            copyAxes(last_cartesian, seg_target);
->>>>>>> 91a7b666 (movement debugged, correct distances)
         }
         return true;
     }
 
     void SpiderMic::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
-<<<<<<< HEAD
         //log_debug("motors_to_cartesian motors: (" << motors[0] << "," << motors[1] << "," << motors[2] << "," << motors[3] << ")");
         //log_info("motors_to_cartesian r_A0:" << r_0[0] << " r_B0:" << r_0[1] << " r_C0:" << r_0[2] << " r_D0:" << r_0[3]);
 
@@ -240,21 +203,6 @@ namespace Kinematics {
         // Min of the 2 values (they provide the same value anyway)
         cartesian[X_AXIS] = fmin(x_AD, x_BC); // = last_cartesian[X_AXIS]
         cartesian[Y_AXIS] = fmin(y_BA, y_CD); // = last_cartesian[Y_AXIS]
-=======
-        copyAxes(last_motor_angles, motors);
-
-        float x_AD = 0.5 * ((motors[X_AXIS] + motors[A_AXIS]) * (motors[X_AXIS] - motors[A_AXIS]) / _x_max + _x_max);
-        float x_BC = 0.5 * ((motors[Y_AXIS] + motors[Z_AXIS]) * (motors[Y_AXIS] - motors[Z_AXIS]) / _x_max + _x_max);
-        log_debug("motors_to_cartesian x_AD:" << x_AD << " x_BC:" << x_BC);
-
-        float y_BA = 0.5 * ((motors[Y_AXIS] + motors[X_AXIS]) * (motors[Y_AXIS] - motors[X_AXIS]) / _y_max + _y_max);
-        float y_CD = 0.5 * ((motors[Z_AXIS] + motors[A_AXIS]) * (motors[Z_AXIS] - motors[A_AXIS]) / _y_max + _y_max);
-        log_debug("motors_to_cartesian y_BA:" << y_BA << " y_CD:" << y_CD);
-
-        // Average is calculated. They provide the same value anyway
-        cartesian[X_AXIS] = last_cartesian[X_AXIS] = (x_AD + x_BC) / 2;
-        cartesian[Y_AXIS] = last_cartesian[Y_AXIS] = (y_BA + y_CD) / 2;
->>>>>>> 91a7b666 (movement debugged, correct distances)
     }
 
     // Not completely implemented
@@ -340,7 +288,6 @@ namespace Kinematics {
         // Set max on A motor
 
         
-<<<<<<< HEAD
 
         /*
         //config->_axes->motorMask
@@ -381,28 +328,14 @@ namespace Kinematics {
         //int32_t steps = mpos_to_steps(_homing_mpos, axis);
         //set_motor_steps(axis, steps);
         //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
-=======
-        // Touch limits with each motor sequentially: B -> A -> D
-        for (size_t axis = X_AXIS; axis < n_axis; axis++) {
-            //releaseMotors(AxisMask axisMask, MotorMask motors)
-
-
-            //int32_t steps = mpos_to_steps(_homing_mpos, axis);
-            //set_motor_steps(axis, steps);
-            //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
-        }
->>>>>>> 91a7b666 (movement debugged, correct distances)
 
         // A limit switch on either axis stops both motors
         //config->_axes->_axis[X_AXIS]->_motors[0]->limitOtherAxis(Y_AXIS);
         //config->_axes->_axis[Y_AXIS]->_motors[0]->limitOtherAxis(X_AXIS);
-<<<<<<< HEAD
 
         // Set motor position to steps
         for (size_t axis = X_AXIS; axis < n_axis; axis++) {
             last_motor_mm[axis] = l0;
-=======
->>>>>>> 91a7b666 (movement debugged, correct distances)
 
             int32_t steps_per_mm = axes->_axis[axis]->_stepsPerMm;
             int32_t steps = l0 / steps_per_mm;
@@ -449,7 +382,6 @@ namespace Kinematics {
     }
 
     bool SpiderMic::transform_cartesian_to_motors(float* motors, float* cartesian) {
-<<<<<<< HEAD
         float max_l1 = sqrt(pow(max_x, 2) + pow(max_y, 2));
         float max_l2 = sqrt(pow(max_x, 2) + pow(max_y, 2));
         float l1 = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
@@ -470,45 +402,6 @@ namespace Kinematics {
         motors[1] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2)) / pow(C_b, 2);
         motors[2] = sqrt(pow(cartesian[X_AXIS] - l1, 2) + pow(cartesian[Y_AXIS], 2)) / pow(C_b, 2);
         motors[3] = sqrt(pow(cartesian[X_AXIS] - l1, 2) + pow(cartesian[Y_AXIS] - l2, 2)) / pow(C_b, 2);
-=======
-        if (_softLimits) { // Check if target is in the cartesian space
-            if (cartesian[X_AXIS] < _x_min) {
-                log_debug("Kinematics error. Target:" << cartesian[X_AXIS] << " exceeds x_min:" << _x_min);
-                return false;
-            }
-            if (cartesian[X_AXIS] > _x_max) {
-                log_debug("Kinematics error. Target:" << cartesian[X_AXIS] << " exceeds x_max:" << _x_max);
-                return false;
-            }
-            if (cartesian[Y_AXIS] < _y_min) {
-                log_debug("Kinematics error. Target:" << cartesian[Y_AXIS] << " exceeds y_min:" << _y_min);
-                return false;
-            }
-            if (cartesian[Y_AXIS] > _y_max) {
-                log_debug("Kinematics error. Target:" << cartesian[Y_AXIS] << " exceeds y_max:" << _y_max);
-                return false;
-            }
-        } else { // Check if motors movement abide the range
-            float l = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-            float l_min = sqrt(pow(_x_min, 2) + pow(_y_min, 2));
-            float l_max = sqrt(pow(_x_max, 2) + pow(_y_max, 2));
-            if (l > l_max or l < l_min) {
-                log_debug("Kinematics transform error. Target:" << l << " exceeds d1_max:" << l_max << " or d2_max:" << l_min);
-                return false;
-            }
-        }
-        
-        log_debug("transform_cartesian_to_motors: cartesian (" << cartesian[X_AXIS] << "," << cartesian[Y_AXIS] << ")");
-
-        // Assign motor movements
-        motors[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motors[Y_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-        motors[Z_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
-        motors[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        //vector_distance(target, position, 2)
-
-        log_debug("transform_cartesian_to_motors: motors (" << motors[X_AXIS] << "," << motors[Y_AXIS] << "," << motors[Z_AXIS] << "," << motors[A_AXIS] << ")");
->>>>>>> 91a7b666 (movement debugged, correct distances)
 
         return true;
     }
