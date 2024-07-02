@@ -57,24 +57,12 @@ namespace Kinematics {
     float last_cartesian[MAX_N_AXIS];    // Save cartesian position for calculations
 
     //  Parameters
-    float _R_b                      = 6.0;   // bobbin inner radius on which thread is rolled [mm], ideal value R_b = 20 / π -> steps_per_mm = 80
-    float _kinematic_segment_len_mm = 1.0;   // the maximun segment length the move is broken into
+    float _kinematic_segment_len_mm = 1;   // the maximun segment length the move is broken into
     bool  _softLimits               = false;
     float _x_min                    = 0;
-    float _x_max                    = 372.0; // ~ (370 - 372) side lenght of field [mm]
+    float _x_max                    = 374; // ~ (374 - 375) side lenght of field [mm]
     float _y_min                    = 0;
-    float _y_max                    = 372.0; // ~ (370 - 372) side width of field [mm]
-
-    float _d1_max;
-    float _d2_max;
-    float _homing_mpos;
-
-    // Constants for calculations
-    // M_PI is not defined in standard C/C++ but some compilers support it anyway.  The following suppresses Intellisense problem reports.
-    #ifndef M_PI
-    #    define M_PI 3.14159265358979323846
-    #endif
-    float C_b  = _R_b * M_PI / 180.0;
+    float _y_max                    = 374; // ~ (374 - 375) side width of field [mm]
     
     protected:
     };
