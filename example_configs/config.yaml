@@ -33,7 +33,7 @@ stepping:
 
 kinematics:
   SpiderMic:
-    kinematic_segment_len_mm: 1.0
+    kinematic_segment_len_mm: 1
     x_max_mm: 374
     y_max_mm: 374
     softLimits: false
@@ -47,7 +47,7 @@ axes:
     steps_per_mm: 85
     # 200 * 16 / (6 * 2π) = 800 / (3 * π)
     max_rate_mm_per_min: 12000
-    acceleration_mm_per_sec2: 150
+    acceleration_mm_per_sec2: 100
     max_travel_mm: 526
     # sqrt(pow(_max_x, 2) + pow(_max_y, 2))
     soft_limits: false
@@ -63,8 +63,9 @@ axes:
         uart_num: 1
         addr: 1
         stallguard_debug: true
-        run_mode: SpreadCycle
-        # run_mode: StealthChop run_amps: 0.500
+        run_mode: StealthChop
+        run_amps: 0.5
+        # run_mode: SpreadCycle
         homing_mode: Stallguard
         use_enable: false
         stallguard: 31
@@ -98,7 +99,8 @@ axes:
         uart_num: 1
         addr: 3
         stallguard_debug: true
-        run_mode: SpreadCycle
+        run_mode: StealthChop
+        run_amps: 0.5
         homing_mode: Stallguard
         use_enable: false
         stallguard: 31
@@ -131,7 +133,8 @@ axes:
         uart_num: 1
         addr: 0
         stallguard_debug: true
-        run_mode: SpreadCycle
+        run_mode: StealthChop
+        run_amps: 0.5
         homing_mode: Stallguard
         use_enable: false
         stallguard: 31
@@ -163,7 +166,8 @@ axes:
         direction_pin: gpio.17
         uart_num: 1
         addr: 2
-        run_mode: SpreadCycle
+        run_mode: StealthChop
+        run_amps: 0.5
         homing_mode: Stallguard
         use_enable: false
         stallguard_debug: true
@@ -171,7 +175,7 @@ axes:
         r_sense_ohms: 0.15
     homing:
       cycle: 1
-      allow_single_axis: true
+      allow_single_axis: false
       positive_direction: false
       mpos_mm: 0
       feed_mm_per_min: 650
