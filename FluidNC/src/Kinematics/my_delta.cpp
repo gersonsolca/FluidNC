@@ -46,20 +46,27 @@ namespace Kinematics {
         handler.item("x_max_mm", _x_max, 200.0, 500.0);
         handler.item("y_max_mm", _y_max, 200.0, 500.0);
         handler.item("softLimits", _softLimits);
-        handler.item("softLimits", _softLimits_mm, 200, min(_x_max, _y_max));
+        handler.item("softLimits_mm", _softLimits_mm, 200, min(_x_max, _y_max));
     }
 
     void SpiderMic::init() {
         // print a startup message to show the kinematics are enabled. Print the offset for reference
         log_info("Kinematic system:" << name() << " soft_limits:" << _softLimits);
+        if (_softLimits) {log_info("soft_limits_mm (from center): " << _softLimits_mm)} 
 
         init_position();
     }
 
     void SpiderMic::init_position() {
+        auto axes   = config->_axes;
+        auto n_axis = axes->_numberAxis;
+
         // Set motor positions
-        for (size_t axis = X_AXIS; axis <= A_AXIS; axis++) {
+        for (size_t axis = X_AXIS; axis < n_axis; axis++) {
             last_motor_angles[axis] = sqrt(pow(_x_max, 2) + pow(_y_max, 2)) / 2;
+            int32_t steps_per_mm = axes->_axis[axis]->_stepsPerMm;
+            int steps = last_motor_angles[axis] / steps_per_mm;
+            set_motor_steps(axis, steps);
         }
         
         // Sets cartesian position
@@ -109,7 +116,7 @@ namespace Kinematics {
     bool SpiderMic::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
         //auto axes   = config->_axes;
         //auto n_axis = axes->_numberAxis;
-        float motor_angles[4];                          // 
+        float motor_angles[4];                          // Dummy motor angles
         float seg_target[2];                            // The target of the current segment
         float cartesian_feed_rate = pl_data->feed_rate; // save original feed rate
 
@@ -203,7 +210,6 @@ namespace Kinematics {
     bool SpiderMic::kinematics_homing(AxisMask& axisMask) {
         auto axes   = config->_axes;
         auto n_axis = axes->_numberAxis;
-        
 
         // Touch limits with motors B and D
         log_debug("Homing axis: Y");
@@ -233,6 +239,9 @@ namespace Kinematics {
         // Set max on A motor
 
 
+        /*
+        //axes->_axis[axis]->_motors[0]->unlimit();
+
         //int32_t steps = mpos_to_steps(_homing_mpos, axis);
         //set_motor_steps(axis, steps);
         //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
@@ -241,7 +250,6 @@ namespace Kinematics {
         //config->_axes->_axis[X_AXIS]->_motors[0]->limitOtherAxis(Y_AXIS);
         //config->_axes->_axis[Y_AXIS]->_motors[0]->limitOtherAxis(X_AXIS);
 
-        /*
         // Set motor position to steps
         for (size_t axis = X_AXIS; axis < n_axis; axis++) {
             int32_t steps = mpos_to_steps(_homing_mpos, axis);
@@ -303,16 +311,21 @@ namespace Kinematics {
         float OC[2] = {_x_max, 0};
         float OD[2] = {_x_max, _y_max};
 
-        log_debug("transform_cartesian_to_motors: cartesian (" << cartesian[X_AXIS] << "," << cartesian[Y_AXIS] << ")");
+        //(condition) ? true-clause : false-clause
+        int signs[4] = {signbit(vector_distance(OA, cartesian, 2) - vector_distance(OA, last_cartesian, 2)) ? -1 : 1,
+                        signbit(vector_distance(OB, cartesian, 2) - vector_distance(OB, last_cartesian, 2)) ? -1 : 1,
+                        signbit(vector_distance(OC, cartesian, 2) - vector_distance(OC, last_cartesian, 2)) ? -1 : 1,
+                        signbit(vector_distance(OD, cartesian, 2) - vector_distance(OD, last_cartesian, 2)) ? -1 : 1};
+
+        log_debug("transform_cartesian_to_motors: cartesian (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
 
         // Assign motor movements
-        motors[X_AXIS] = signbit(vector_distance(OA, cartesian, 2) - vector_distance(OA, last_cartesian, 2)) * sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motors[Y_AXIS] = signbit(vector_distance(OB, cartesian, 2) - vector_distance(OB, last_cartesian, 2)) * sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-        motors[Z_AXIS] = signbit(vector_distance(OC, cartesian, 2) - vector_distance(OC, last_cartesian, 2)) * sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
-        motors[A_AXIS] = signbit(vector_distance(OD, cartesian, 2) - vector_distance(OD, last_cartesian, 2)) * sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        //vector_distance(target, position, 2)
+        motors[X_AXIS] = signs[0] * sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motors[Y_AXIS] = signs[1] * sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+        motors[Z_AXIS] = signs[2] * sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
+        motors[A_AXIS] = signs[3] * sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
 
-        log_debug("transform_cartesian_to_motors: motors (" << motors[X_AXIS] << "," << motors[Y_AXIS] << "," << motors[Z_AXIS] << "," << motors[A_AXIS] << ")");
+        log_debug("transform_cartesian_to_motors: motors (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
 
         return true;
     }
