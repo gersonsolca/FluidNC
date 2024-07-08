@@ -45,9 +45,10 @@ axes:
   homing_runs: 2
   x:
     steps_per_mm: 85
-    # 200 * 16 / (6 * 2π) = 800 / (3 * π)
+    # 200 * 16 / (_R_b_mm * 2π) = 800 / (3 * π) = 84.8826363
+    # optimal _R_b_mm = 320 / (19 * π) = 5.361
     max_rate_mm_per_min: 12000
-    acceleration_mm_per_sec2: 100
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 526
     # sqrt(pow(_max_x, 2) + pow(_max_y, 2))
     soft_limits: false
@@ -58,19 +59,26 @@ axes:
       hard_limits: false
       pulloff_mm: 2
       tmc_2209:
-        step_pin: gpio.27:pu
-        direction_pin: gpio.26
         uart_num: 1
         addr: 1
-        stallguard_debug: true
-        run_mode: StealthChop
+        cs_pin: NO_PIN
+        r_sense_ohms: 0.15
         run_amps: 0.5
+        hold_amps: 0.5
+        microsteps: 16
+        stallguard: 31
+        stallguard_debug: true
+        toff_disable: 0
+        toff_stealthchop: 5
+        toff_coolstep: 3
+        run_mode: StealthChop
         # run_mode: SpreadCycle
         homing_mode: Stallguard
+        homing_amps: 0.50
         use_enable: false
-        stallguard: 31
-        hold_amps: 0.5
-        r_sense_ohms: 0.15
+        direction_pin: gpio.26
+        step_pin: gpio.27:pu
+        disable_pin: NO_PIN
     homing:
       cycle: 1
       allow_single_axis: true
@@ -84,7 +92,7 @@ axes:
   y:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
-    acceleration_mm_per_sec2: 150
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 526
     soft_limits: false
     motor0:
@@ -94,17 +102,25 @@ axes:
       hard_limits: false
       pulloff_mm: 2
       tmc_2209:
-        step_pin: gpio.33:pu
-        direction_pin: gpio.32:low
         uart_num: 1
         addr: 3
-        stallguard_debug: true
-        run_mode: StealthChop
-        run_amps: 0.5
-        homing_mode: Stallguard
-        use_enable: false
-        stallguard: 31
+        cs_pin: NO_PIN
         r_sense_ohms: 0.15
+        run_amps: 0.5
+        hold_amps: 0.5
+        microsteps: 16
+        stallguard: 31
+        stallguard_debug: true
+        toff_disable: 0
+        toff_stealthchop: 5
+        toff_coolstep: 3
+        run_mode: StealthChop
+        homing_mode: Stallguard
+        homing_amps: 0.50
+        use_enable: false
+        direction_pin: gpio.32
+        step_pin: gpio.33:pu
+        disable_pin: NO_PIN
     homing:
       cycle: 1
       allow_single_axis: true
@@ -118,7 +134,7 @@ axes:
   z:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
-    acceleration_mm_per_sec2: 150
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 526
     soft_limits: false
     motor0:
@@ -128,17 +144,25 @@ axes:
       hard_limits: false
       pulloff_mm: 2
       tmc_2209:
-        step_pin: gpio.14:pu
-        direction_pin: gpio.12:low
         uart_num: 1
         addr: 0
-        stallguard_debug: true
-        run_mode: StealthChop
-        run_amps: 0.5
-        homing_mode: Stallguard
-        use_enable: false
-        stallguard: 31
+        cs_pin: NO_PIN
         r_sense_ohms: 0.15
+        run_amps: 0.5
+        hold_amps: 0.5
+        microsteps: 16
+        stallguard: 31
+        stallguard_debug: true
+        toff_disable: 0
+        toff_stealthchop: 5
+        toff_coolstep: 3
+        run_mode: StealthChop
+        homing_mode: Stallguard
+        homing_amps: 0.50
+        use_enable: false
+        direction_pin: gpio.12
+        step_pin: gpio.14:pu
+        disable_pin: NO_PIN
     homing:
       cycle: 1
       allow_single_axis: true
@@ -152,7 +176,7 @@ axes:
   a:
     steps_per_mm: 85
     max_rate_mm_per_min: 12000
-    acceleration_mm_per_sec2: 150
+    acceleration_mm_per_sec2: 50
     max_travel_mm: 526
     soft_limits: false
     motor0:
@@ -162,17 +186,25 @@ axes:
       hard_limits: false
       pulloff_mm: 1
       tmc_2209:
-        step_pin: gpio.16:pu
-        direction_pin: gpio.17
         uart_num: 1
         addr: 2
-        run_mode: StealthChop
-        run_amps: 0.5
-        homing_mode: Stallguard
-        use_enable: false
-        stallguard_debug: true
-        stallguard: 31
+        cs_pin: NO_PIN
         r_sense_ohms: 0.15
+        run_amps: 0.5
+        hold_amps: 0.5
+        microsteps: 16
+        stallguard: 31
+        stallguard_debug: true
+        toff_disable: 0
+        toff_stealthchop: 5
+        toff_coolstep: 3
+        run_mode: StealthChop
+        homing_mode: Stallguard
+        homing_amps: 0.50
+        use_enable: false
+        direction_pin: gpio.17
+        step_pin: gpio.16:pu
+        disable_pin: NO_PIN
     homing:
       cycle: 1
       allow_single_axis: false
