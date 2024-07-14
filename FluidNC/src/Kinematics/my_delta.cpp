@@ -359,11 +359,22 @@ namespace Kinematics {
         /*
         // Set motor position to steps
         for (size_t axis = X_AXIS; axis < n_axis; axis++) {
-            int32_t steps = mpos_to_steps(_homing_mpos, axis);
+            last_motor_mm[axis] = l0;
+
+            int32_t steps_per_mm = axes->_axis[axis]->_stepsPerMm;
+            int32_t steps = l0 / steps_per_mm;
             set_motor_steps(axis, steps);
-            //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
+            // motor steps = 200 * 16 = 3'200
+
+            mpos_to_steps(l0, axis);
+            set_motor_steps(axis, 0);  // Set to zero
+            set_motor_steps_from_mpos(&l0);
+            get_axis_motor_steps();
         }
+
         protocol_disable_steppers();
+
+        Axes::set_disable();
         */
 
         //Homing::set_all_axes_homed()
