@@ -61,7 +61,7 @@ namespace Kinematics {
     float _x_max                    = 374;    // ~ (374 - 375) side lenght of field [mm]
     float _y_max                    = 374;    // ~ (374 - 375) side width of field [mm]
     bool  _softLimits               = false;
-    float _softLimits_mm            = 200;    // Size of the soft limits from the center
+    float _softLimits_mm            = 100;    // Size of the soft limits from the center
     
     protected:
     };
