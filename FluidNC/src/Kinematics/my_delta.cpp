@@ -208,6 +208,11 @@ namespace Kinematics {
         auto axes   = config->_axes;
         auto n_axis = axes->_numberAxis;
 
+        log_debug("axisMask: " << axisMask);
+
+        float maxmotor[4], minmotor[4] = {0};
+        int time = 5;
+
         // Touch limits with motors B and D
         log_debug("Homing axis: Y");
         // Release motors except Y
@@ -216,6 +221,49 @@ namespace Kinematics {
         // Set 0 on Y motor
         // Pull with Z motor
         // Set max on Z motor
+
+        /*
+        releaseMotors(motormask_234);
+
+        move_axis(X_AXIS);
+
+        int timer = 0;
+        while(Machine::stopin(X_AXIS)){
+            if (timer <= time) {
+                stop_axis(X_AXIS);
+                log_error(“No end stop found for axis X”)
+                return;
+            }
+            stop_axis(X_AXIS);
+        }
+
+        // Implement double touch?
+
+        minmotor[X_AXIS] = motor[X_AXIS];
+
+        holdmotor(X_AXIS);
+
+        move_axis(Y_AXIS);
+        move_axis(Z_AXIS);
+
+        timer = 0;
+        while (Machine::stopin(Y_AXIS) || Machine::stopin(Z_AXIS)){
+            if (timer <= time) {
+                stop_axis(Y_AXIS);
+                stop_axis(Z_AXIS);
+                log_error(“No end stop found for the axes”)
+                return;
+            }
+            if (Machine::stopin(Y_AXIS)) {
+                stop_axis(Y_AXIS);
+            }
+            if (Machine::stopin(Z_AXIS)) {
+                stop_axis(Z_AXIS);;
+            }
+        }
+
+        maxmotor[Z_AXIS] = motor[Z_AXIS];
+        */        
 
         log_debug("Homing axis: Z");
         // Release motors except Z
@@ -235,7 +283,23 @@ namespace Kinematics {
         // Pull with A motor
         // Set max on A motor
 
+        
 
+        /*
+        #include <chrono>  // for high_resolution_clock
+        ...
+
+
+        // Record start time
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // Portion of code to be timed
+        ...
+
+        // Record end time
+        auto finish = std::chrono::high_resolution_clock::now();
+        */
+        //MotorMask limited = Machine::Axes::posLimitMask | Machine::Axes::negLimitMask;
         /*
         // For Cartesian, the limit switches are associated with individual motors, since
         // an axis can have dual motors each with its own limit switch.  We clear the motors in
