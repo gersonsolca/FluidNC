@@ -206,12 +206,4 @@ axes:
         step_pin: gpio.16:pu
         disable_pin: NO_PIN
     homing:
-      cycle: 1
-      allow_single_axis: false
-      positive_direction: false
-      mpos_mm: 0
-      feed_mm_per_min: 650
-      seek_mm_per_min: 650
-      settle_ms: 1000
-      seek_scaler: 1.1
-      feed_scaler: 1.1
+      cycle: -1
