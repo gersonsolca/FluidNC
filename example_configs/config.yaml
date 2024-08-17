@@ -23,7 +23,6 @@ uart1:
   rxd_pin: gpio.21
   baud: 115200
   mode: 8N1
-
 stepping:
   engine: RMT
   idle_ms: 250
