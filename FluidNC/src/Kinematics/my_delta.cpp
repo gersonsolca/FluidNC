@@ -1,5 +1,4 @@
-
- #include "my_delta.h"
+#include "my_delta.h"
 
 #include "../Machine/MachineConfig.h"
 #include "../Limits.h"  // ambiguousLimit()
@@ -33,12 +32,16 @@ Default configuration
 
 kinematics:
     SpiderMic:
+        _kinematic_segment_len_mm: 1
+        _x_max: 374
+        _y_max: 374
+        _softLimits: false
+        _softLimits_mm: 100
 
 TODO
+- kinematics_homing()
 - invalid_arc()
 - constrain_jog()
--
-
 */
 
 namespace Kinematics {
@@ -66,7 +69,7 @@ namespace Kinematics {
         last_cartesian_mm[Y_AXIS] = _y_max * 0.5;
         
         float l0 = sqrt(pow(_x_max, 2) + pow(_y_max, 2)) * 0.25;
-        for (size_t axis = X_AXIS; axis <= A_AXIS; axis++) {
+        for (size_t axis = X_AXIS; axis < B_AXIS; axis++) {
             last_motor_mm[axis] = l0;
         }
 
@@ -96,7 +99,7 @@ namespace Kinematics {
         if (!_softLimits)
             return;
 
-        float motors[MAX_N_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+        float motors[MAX_N_AXIS] = {0.0};
 
         // Temp fix
         // If the target is reachable do nothing
@@ -131,8 +134,8 @@ namespace Kinematics {
             return false;
         }
 
-        //position[X_AXIS] += gc_state.coord_offset[X_AXIS];
-        //position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
+        position[X_AXIS] += gc_state.coord_offset[X_AXIS];
+        position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
 
         float cartesian_dist = vector_distance(target, position, 2);
 
@@ -186,17 +189,17 @@ namespace Kinematics {
     }
 
     void SpiderMic::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
-        log_debug("MtC. cartesian: (" << cartesian[0] << ", " << cartesian[1] << ")");
-        log_debug("MtC. motors: (" << motors[0] << ", " << motors[1] << ", " << motors[2] << ", " << motors[3] << ")");
-        copyAxes(last_motor_mm, motors);
+        log_debug("MtC: cartesian: (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
+        log_debug("MtC: motors: (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
+        //copyAxes(motors, last_motor_mm);
 
-        float x_AD = (motors[X_AXIS] + motors[A_AXIS]) * (motors[X_AXIS] - motors[A_AXIS]) / (2 * _x_max) + _x_max / 2;
-        float x_BC = (motors[Y_AXIS] + motors[Z_AXIS]) * (motors[Y_AXIS] - motors[Z_AXIS]) / (2 * _x_max) + _x_max / 2;
-        log_debug("motors_to_cartesian x_AD:" << x_AD << " x_BC:" << x_BC);
+        float x_AD = (motors[X_AXIS] + motors[A_AXIS]) * (motors[X_AXIS] - motors[A_AXIS]) / (2 * _x_max) + _x_max * 0.5;
+        float x_BC = (motors[Y_AXIS] + motors[Z_AXIS]) * (motors[Y_AXIS] - motors[Z_AXIS]) / (2 * _x_max) + _x_max * 0.5;
+        log_debug("MtC: x_AD:" << x_AD << " x_BC:" << x_BC);
 
-        float y_BA = (motors[Y_AXIS] + motors[X_AXIS]) * (motors[Y_AXIS] - motors[X_AXIS]) / (2 * _y_max) + _y_max / 2;
-        float y_CD = (motors[Z_AXIS] + motors[A_AXIS]) * (motors[Z_AXIS] - motors[A_AXIS]) / (2 * _y_max) + _y_max / 2;
-        log_debug("motors_to_cartesian y_BA:" << y_BA << " y_CD:" << y_CD);
+        float y_BA = (motors[Y_AXIS] + motors[X_AXIS]) * (motors[Y_AXIS] - motors[X_AXIS]) / (2 * _y_max) + _y_max * 0.5;
+        float y_CD = (motors[Z_AXIS] + motors[A_AXIS]) * (motors[Z_AXIS] - motors[A_AXIS]) / (2 * _y_max) + _y_max * 0.5;
+        log_debug("MtC: y_BA:" << y_BA << " y_CD:" << y_CD);
 
         // Min of the 2 values (they provide the same value anyway)
         cartesian[X_AXIS] = fmin(x_AD, x_BC); // = last_cartesian[X_AXIS]
@@ -210,7 +213,7 @@ namespace Kinematics {
 
         log_debug("axisMask: " << axisMask);
 
-        float maxmotor[4], minmotor[4] = {0};
+        float maxmotor[MAX_N_AXIS], minmotor[MAX_N_AXIS] = {0};
         int time = 5;
 
         // Touch limits with motors B and D
@@ -223,6 +226,8 @@ namespace Kinematics {
         // Set max on Z motor
 
         /*
+        See CoreXY release motors
+
         releaseMotors(motormask_234);
 
         move_axis(X_AXIS);
@@ -286,6 +291,16 @@ namespace Kinematics {
         
 
         /*
+        //config->_axes->motorMask
+        log_debug("TCtM: homingmask (" << config->_axes->homingMask << ")");
+        log_debug("TCtM: limitmask (" << config->_axes->limitMask << ")");
+        log_debug("TCtM: limitmask (" << config->_axes->negLimitMask << ")");
+        log_debug("TCtM: limitmask (" << config->_axes->posLimitMask << ")");
+        //AxisMask axisMask; // 0x01 // 0b0001
+        //MotorMask motorMask; // 0x01 // 0b00000001
+        //releaseMotors(AxisMask axisMask, MotorMask motors);
+        //bitnum_is_true(axisMask, axis);
+
         #include <chrono>  // for high_resolution_clock
         ...
 
@@ -386,17 +401,46 @@ namespace Kinematics {
             }
         }
 
-        log_debug("transform_cartesian_to_motors: cartesian (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
+        log_debug("tCtM: cartesian (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
+
+        // Calculate motor movements
+        // The UART chip addresses are in a confusing order: E=0, X=1, Y=2, Z=3
+        float motor_angles_mm[MAX_N_AXIS] = {0};
+        motor_angles_mm[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motor_angles_mm[Y_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motor_angles_mm[Z_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+        motor_angles_mm[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
+        log_debug("tCtM: motors (" << motor_angles_mm[X_AXIS] << ", " << motor_angles_mm[Y_AXIS] << ", " << motor_angles_mm[Z_AXIS] << ", " << motor_angles_mm[A_AXIS] << ")");
 
         // Assign motor movements
-        // vector_distance(v1, v2, 2)
-        motors[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motors[Y_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-        motors[Z_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motors[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
+        copyAxes(motors, motor_angles_mm);
 
-        log_debug("transform_cartesian_to_motors: motors (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
+        /*
+        if (motor_angles_mm[X_AXIS] - last_motor_mm[X_AXIS] < 0) { // pushing
+            //config->_axes->set_disable(X_AXIS, true);
+            //config->_axes->_axis[X_AXIS]->_motors[0]->unblock() // let freewheel
+        } else { // pulling
+            motors[X_AXIS] = motor_angles_mm[X_AXIS];
+        }
+        if (motor_angles_mm[Y_AXIS] - last_motor_mm[Y_AXIS] > 0) { // pushing
+            //config->_axes->set_disable(Y_AXIS, true);
+        } else { // pulling
+            motors[Y_AXIS] = motor_angles_mm[Y_AXIS];
+        }
+        if (motor_angles_mm[Z_AXIS] - last_motor_mm[Z_AXIS] < 0) { // pushing
+            //config->_axes->set_disable(Z_AXIS, true);
+        } else { // pulling
+            motors[Z_AXIS] = motor_angles_mm[Z_AXIS];
+        }
+        if (motor_angles_mm[A_AXIS] - last_motor_mm[A_AXIS] > 0) { // pushing
+            //config->_axes->set_disable(A_AXIS, true);
+        } else { // pulling
+            motors[A_AXIS] = motor_angles_mm[A_AXIS];
+        }
+        */
 
+        //copyAxes(last_motor_mm, motor_angles_mm);
+        
         return true;
     }
 
