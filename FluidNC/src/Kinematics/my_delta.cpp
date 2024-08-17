@@ -134,8 +134,8 @@ namespace Kinematics {
             return false;
         }
 
-        //position[X_AXIS] += gc_state.coord_offset[X_AXIS];
-        //position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
+        position[X_AXIS] += gc_state.coord_offset[X_AXIS];
+        position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
 
         float cartesian_dist = vector_distance(target, position, 2);
 
