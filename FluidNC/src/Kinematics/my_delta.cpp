@@ -152,7 +152,7 @@ namespace Kinematics {
             if (sys.abort) {
                 return true;
             }
-
+            
             // determine this segment's target
             seg_target_mm[X_AXIS] += dr[X_AXIS];
             seg_target_mm[Y_AXIS] += dr[Y_AXIS];
