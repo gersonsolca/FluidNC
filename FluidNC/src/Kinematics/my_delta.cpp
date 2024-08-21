@@ -152,7 +152,7 @@ namespace Kinematics {
             if (sys.abort) {
                 return true;
             }
-
+            
             // determine this segment's target
             seg_target_mm[X_AXIS] += dr[X_AXIS];
             seg_target_mm[Y_AXIS] += dr[Y_AXIS];
@@ -189,7 +189,6 @@ namespace Kinematics {
     }
 
     void SpiderMic::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
-        log_debug("MtC: cartesian: (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
         log_debug("MtC: motors: (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
         //copyAxes(motors, last_motor_mm);
 
@@ -403,43 +402,32 @@ namespace Kinematics {
 
         log_debug("tCtM: cartesian (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
 
-        // Calculate motor movements
-        // The UART chip addresses are in a confusing order: E=0, X=1, Y=2, Z=3
-        float motor_angles_mm[MAX_N_AXIS] = {0};
-        motor_angles_mm[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motor_angles_mm[Y_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
-        motor_angles_mm[Z_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-        motor_angles_mm[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
-        log_debug("tCtM: motors (" << motor_angles_mm[X_AXIS] << ", " << motor_angles_mm[Y_AXIS] << ", " << motor_angles_mm[Z_AXIS] << ", " << motor_angles_mm[A_AXIS] << ")");
-
         // Assign motor movements
-        copyAxes(motors, motor_angles_mm);
+        // The UART chip addresses are in a confusing order: E=0, X=1, Y=2, Z=3
+        motors[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motors[Y_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motors[Z_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+        motors[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
+        log_debug("tCtM: motors (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
 
-        /*
-        if (motor_angles_mm[X_AXIS] - last_motor_mm[X_AXIS] < 0) { // pushing
-            //config->_axes->set_disable(X_AXIS, true);
-            //config->_axes->_axis[X_AXIS]->_motors[0]->unblock() // let freewheel
-        } else { // pulling
-            motors[X_AXIS] = motor_angles_mm[X_AXIS];
+        /**/
+        // freewheel axis if not pulling
+        if (motors[X_AXIS] - last_motor_mm[X_AXIS] < 0) {
+            config->_axes->set_disable(X_AXIS, true);
         }
-        if (motor_angles_mm[Y_AXIS] - last_motor_mm[Y_AXIS] > 0) { // pushing
-            //config->_axes->set_disable(Y_AXIS, true);
-        } else { // pulling
-            motors[Y_AXIS] = motor_angles_mm[Y_AXIS];
+        if (motors[Y_AXIS] - last_motor_mm[Y_AXIS] > 0) {
+            config->_axes->set_disable(Y_AXIS, true);
         }
-        if (motor_angles_mm[Z_AXIS] - last_motor_mm[Z_AXIS] < 0) { // pushing
-            //config->_axes->set_disable(Z_AXIS, true);
-        } else { // pulling
-            motors[Z_AXIS] = motor_angles_mm[Z_AXIS];
+        if (motors[Z_AXIS] - last_motor_mm[Z_AXIS] > 0) {
+            config->_axes->set_disable(Z_AXIS, true);
         }
-        if (motor_angles_mm[A_AXIS] - last_motor_mm[A_AXIS] > 0) { // pushing
-            //config->_axes->set_disable(A_AXIS, true);
-        } else { // pulling
-            motors[A_AXIS] = motor_angles_mm[A_AXIS];
+        if (motors[A_AXIS] - last_motor_mm[A_AXIS] < 0) {
+            config->_axes->set_disable(A_AXIS, true);
         }
-        */
-
-        //copyAxes(last_motor_mm, motor_angles_mm);
+        //toff_stealthchop: 0
+        //config->_axes->_axis[0]->_motors[0]->_driver;
+        //config->_uart_channels[1];
+        //config->_uarts[1];
         
         return true;
     }
