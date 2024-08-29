@@ -32,33 +32,11 @@ stepping:
 
 kinematics:
   SpiderMic:
-<<<<<<< HEAD
-<<<<<<< HEAD
-    kinematic_segment_len_mm: 0.2
+    kinematic_segment_len_mm: 1
     x_max_mm: 374
     y_max_mm: 374
     softLimits: false
-    # limits ingnored if softLimits is false
     softLimits_mm: 200
-    # limits calculated from the center
-=======
-    R_b_mm: 6
-=======
->>>>>>> 91a7b666 (movement debugged, correct distances)
-    kinematic_segment_len_mm: 1.0
-    x_max_mm: 374
-    y_max_mm: 374
-    softLimits: false
-    # limits ingnored if softLimits is false
-    x_min_mm: 0
-    x_max_mm: 374
-    y_min_mm: 0
-<<<<<<< HEAD
-    y_max_mm: 370
->>>>>>> 58210624 (settings accepted, ready for final implementation)
-=======
-    y_max_mm: 374
->>>>>>> 91a7b666 (movement debugged, correct distances)
 
 axes:
   shared_stepper_disable_pin: gpio.25
@@ -68,11 +46,10 @@ axes:
     max_rate_mm_per_min: 12000
     acceleration_mm_per_sec2: 50
     max_travel_mm: 526
-    # sqrt(pow(_max_x, 2) + pow(_max_y, 2))
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
-      limit_neg_pin: gpio.34:high
+      limit_neg_pin: gpio.34
       limit_pos_pin: NO_PIN
       hard_limits: false
       pulloff_mm: 2
@@ -81,8 +58,8 @@ axes:
         addr: 1
         cs_pin: NO_PIN
         r_sense_ohms: 0.15
-        run_amps: 0.500
-        hold_amps: 0.500
+        run_amps: 0.5
+        hold_amps: 0.5
         microsteps: 16
         stallguard: 31
         stallguard_debug: true
@@ -90,9 +67,8 @@ axes:
         toff_stealthchop: 5
         toff_coolstep: 3
         run_mode: StealthChop
-        # run_mode: SpreadCycle
         homing_mode: Stallguard
-        homing_amps: 0.500
+        homing_amps: 0.5
         use_enable: false
         direction_pin: gpio.26
         step_pin: gpio.27:pu
@@ -107,6 +83,7 @@ axes:
       settle_ms: 1000
       seek_scaler: 1.1
       feed_scaler: 1.1
+
   y:
     steps_per_mm: 50
     max_rate_mm_per_min: 12000
@@ -115,7 +92,7 @@ axes:
     soft_limits: false
     motor0:
       limit_all_pin: NO_PIN
-      limit_neg_pin: gpio.35:high
+      limit_neg_pin: gpio.35
       limit_pos_pin: NO_PIN
       hard_limits: false
       pulloff_mm: 2
@@ -124,8 +101,8 @@ axes:
         addr: 2
         cs_pin: NO_PIN
         r_sense_ohms: 0.15
-        run_amps: 0.500
-        hold_amps: 0.500
+        run_amps: 0.5
+        hold_amps: 0.5
         microsteps: 16
         stallguard: 31
         stallguard_debug: true
@@ -134,7 +111,7 @@ axes:
         toff_coolstep: 3
         run_mode: StealthChop
         homing_mode: Stallguard
-        homing_amps: 0.500
+        homing_amps: 0.5
         use_enable: false
         direction_pin: gpio.32
         step_pin: gpio.33:pu
@@ -149,6 +126,7 @@ axes:
       settle_ms: 1000
       seek_scaler: 1.1
       feed_scaler: 1.1
+
   z:
     steps_per_mm: 50
     max_rate_mm_per_min: 12000
@@ -166,8 +144,8 @@ axes:
         addr: 3
         cs_pin: NO_PIN
         r_sense_ohms: 0.15
-        run_amps: 0.500
-        hold_amps: 0.500
+        run_amps: 0.5
+        hold_amps: 0.5
         microsteps: 16
         stallguard: 31
         stallguard_debug: true
@@ -176,7 +154,7 @@ axes:
         toff_coolstep: 3
         run_mode: StealthChop
         homing_mode: Stallguard
-        homing_amps: 0.500
+        homing_amps: 0.5
         use_enable: false
         direction_pin: gpio.12
         step_pin: gpio.14:pu
@@ -191,6 +169,7 @@ axes:
       settle_ms: 1000
       seek_scaler: 1.1
       feed_scaler: 1.1
+
   a:
     steps_per_mm: 50
     max_rate_mm_per_min: 12000
@@ -208,8 +187,8 @@ axes:
         addr: 0
         cs_pin: NO_PIN
         r_sense_ohms: 0.15
-        run_amps: 0.500
-        hold_amps: 0.500
+        run_amps: 0.5
+        hold_amps: 0.5
         microsteps: 16
         stallguard: 31
         stallguard_debug: true
@@ -218,7 +197,7 @@ axes:
         toff_coolstep: 3
         run_mode: StealthChop
         homing_mode: Stallguard
-        homing_amps: 0.500
+        homing_amps: 0.5
         use_enable: false
         direction_pin: gpio.17
         step_pin: gpio.16:pu
@@ -233,3 +212,4 @@ axes:
       settle_ms: 1000
       seek_scaler: 1.1
       feed_scaler: 1.1
+      

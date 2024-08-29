@@ -68,7 +68,7 @@ namespace Kinematics {
         last_cartesian_mm[X_AXIS] = _x_max * 0.5;
         last_cartesian_mm[Y_AXIS] = _y_max * 0.5;
         
-        float l0 = sqrt(pow(_x_max, 2) + pow(_y_max, 2)) * 0.25;
+        float l0 = sqrt(pow(_x_max, 2) + pow(_y_max, 2)) * 0.5;
         for (size_t axis = X_AXIS; axis < B_AXIS; axis++) {
             last_motor_mm[axis] = l0;
         }
@@ -78,6 +78,7 @@ namespace Kinematics {
 
     bool SpiderMic::invalid_line(float* cartesian) {
         if (!_softLimits)
+        
             return false;
 
         if (!transform_cartesian_to_motors(last_motor_mm, cartesian)) {
@@ -134,8 +135,9 @@ namespace Kinematics {
             return false;
         }
 
-        //position[X_AXIS] += gc_state.coord_offset[X_AXIS];
-        //position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
+        position[X_AXIS] += gc_state.coord_offset[X_AXIS];
+        position[Y_AXIS] += gc_state.coord_offset[Y_AXIS];
+        log_debug("CtM: gc_state.coord_offset:(" << gc_state.coord_offset[X_AXIS] << ", " << gc_state.coord_offset[Y_AXIS] << ")");
 
         float cartesian_dist = vector_distance(target, position, 2);
 
@@ -152,7 +154,7 @@ namespace Kinematics {
             if (sys.abort) {
                 return true;
             }
-
+            
             // determine this segment's target
             seg_target_mm[X_AXIS] += dr[X_AXIS];
             seg_target_mm[Y_AXIS] += dr[Y_AXIS];
@@ -162,7 +164,7 @@ namespace Kinematics {
 
             // Calculate motor movement angles
             if (!transform_cartesian_to_motors(motor_angles_mm, seg_target_mm)) {
-                log_error("Kinematic error. Motors (" << motor_angles_mm[X_AXIS] << "," << motor_angles_mm[Y_AXIS] << "," << motor_angles_mm[Z_AXIS] << "," << motor_angles_mm[A_AXIS] << ")");
+                log_error("Kinematic error. Motors (" << motor_angles_mm[X_AXIS] << ", " << motor_angles_mm[Y_AXIS] << ", " << motor_angles_mm[Z_AXIS] << ", " << motor_angles_mm[A_AXIS] << ")");
                 return false;
             }
 
@@ -179,7 +181,7 @@ namespace Kinematics {
             if (!mc_move_motors(motor_angles_mm, pl_data)) {
                 return false;
             }
-
+            
             // Save angles for next distance calculations
             // This is after mc_line() so that we do not update last_angle if the segment was discarded.
             copyAxes(last_motor_mm, motor_angles_mm);
@@ -189,20 +191,20 @@ namespace Kinematics {
     }
 
     void SpiderMic::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
-        //log_debug("motors_to_cartesian motors: (" << motors[0] << "," << motors[1] << "," << motors[2] << "," << motors[3] << ")");
-        //log_info("motors_to_cartesian r_A0:" << r_0[0] << " r_B0:" << r_0[1] << " r_C0:" << r_0[2] << " r_D0:" << r_0[3]);
+        log_debug("MtC: motors: (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
+        //copyAxes(motors, last_motor_mm);
 
-        float x_AD = (motors[0] + motors[3]) * (motors[0] - motors[3]) * pow(C_b, 2) * 0.5 + 0.5;
-        float x_BC = (motors[1] + motors[2]) * (motors[1] - motors[2]) * pow(C_b, 2) * 0.5 + 0.5;
-        //log_info("motors_to_cartesian x_AD:" << x_AD << " x_BC:" << x_BC);
+        float x_AD = (motors[X_AXIS] + motors[A_AXIS]) * (motors[X_AXIS] - motors[A_AXIS]) / (2 * _x_max) + _x_max * 0.5;
+        float x_BC = (motors[Y_AXIS] + motors[Z_AXIS]) * (motors[Y_AXIS] - motors[Z_AXIS]) / (2 * _x_max) + _x_max * 0.5;
+        log_debug("MtC: x_AD:" << x_AD << " x_BC:" << x_BC);
 
-        float y_BA = (motors[1] + motors[0]) * (motors[1] - motors[0]) * pow(C_b, 2) * 0.5 + 0.5;
-        float y_CD = (motors[2] + motors[3]) * (motors[2] - motors[3]) * pow(C_b, 2) * 0.5 + 0.5;
-        //log_info("motors_to_cartesian y_BA:" << y_BA << " y_CD:" << y_CD);
+        float y_BA = (motors[Y_AXIS] + motors[X_AXIS]) * (motors[Y_AXIS] - motors[X_AXIS]) / (2 * _y_max) + _y_max * 0.5;
+        float y_CD = (motors[Z_AXIS] + motors[A_AXIS]) * (motors[Z_AXIS] - motors[A_AXIS]) / (2 * _y_max) + _y_max * 0.5;
+        log_debug("MtC: y_BA:" << y_BA << " y_CD:" << y_CD);
 
         // Min of the 2 values (they provide the same value anyway)
-        cartesian[X_AXIS] = fmin(x_AD, x_BC); // = last_cartesian[X_AXIS]
-        cartesian[Y_AXIS] = fmin(y_BA, y_CD); // = last_cartesian[Y_AXIS]
+        cartesian[X_AXIS] = fmax(x_AD, x_BC); // = last_cartesian[X_AXIS]
+        cartesian[Y_AXIS] = fmax(y_BA, y_CD); // = last_cartesian[Y_AXIS]
     }
 
     // Not completely implemented
@@ -356,30 +358,6 @@ namespace Kinematics {
         Homing::set_all_axes_homed();
 
         return true;  // signal main code that this handled all homing
-        /*
-        // Set motor position to steps
-        for (size_t axis = X_AXIS; axis < n_axis; axis++) {
-            last_motor_mm[axis] = l0;
-
-            int32_t steps_per_mm = axes->_axis[axis]->_stepsPerMm;
-            int32_t steps = l0 / steps_per_mm;
-            set_motor_steps(axis, steps);
-            // motor steps = 200 * 16 = 3'200
-
-            mpos_to_steps(l0, axis);
-            set_motor_steps(axis, 0);  // Set to zero
-            set_motor_steps_from_mpos(&l0);
-            get_axis_motor_steps();
-        }
-
-        protocol_disable_steppers();
-
-        Axes::set_disable();
-        */
-
-        //Homing::set_all_axes_homed()
-
-        return true;  // signal main code that this handled all homing
     }
 
     void SpiderMic::releaseMotors(AxisMask axisMask, MotorMask motors) {
@@ -393,27 +371,65 @@ namespace Kinematics {
     }
 
     bool SpiderMic::transform_cartesian_to_motors(float* motors, float* cartesian) {
-        float max_l1 = sqrt(pow(max_x, 2) + pow(max_y, 2));
-        float max_l2 = sqrt(pow(max_x, 2) + pow(max_y, 2));
-        float l1 = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
-        float l2 = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+        if (_softLimits) { // Check if target is in the cartesian space
+            float x_s_min = _x_max * 0.5 - _softLimits_mm;
+            float x_s_max = _x_max * 0.5 + _softLimits_mm;
+            float y_s_min = _y_max * 0.5 - _softLimits_mm;
+            float y_s_max = _y_max * 0.5 + _softLimits_mm;
 
-        if (l1 > max_l1) {
-            log_debug("Kinematics transform error. Target:" << l1 << " exceeds l1:" << max_l1);
-            return false;
+            if (cartesian[X_AXIS] < x_s_min) {
+                log_debug("Kinematics error. Target:" << cartesian[X_AXIS] << " exceeds x_min:" << x_s_min);
+                return false;
+            }
+            if (cartesian[X_AXIS] > x_s_max) {
+                log_debug("Kinematics error. Target:" << cartesian[X_AXIS] << " exceeds x_max:" << x_s_max);
+                return false;
+            }
+            if (cartesian[Y_AXIS] < y_s_min) {
+                log_debug("Kinematics error. Target:" << cartesian[Y_AXIS] << " exceeds y_min:" << y_s_min);
+                return false;
+            }
+            if (cartesian[Y_AXIS] > y_s_max) {
+                log_debug("Kinematics error. Target:" << cartesian[Y_AXIS] << " exceeds y_max:" << y_s_max);
+                return false;
+            }
+        } else { // Check if motors movement abide the range
+            float l = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+            float l_max = sqrt(pow(_x_max, 2) + pow(_y_max, 2));
+            if (l > l_max) {
+                log_debug("Kinematics transform error. Target:" << l << " exceeds d1_max:" << l_max);
+                return false;
+            }
         }
 
-        if (l2 > max_l2) {
-            log_debug("Kinematics transform error. Target:" << l2 << " exceeds max l2:" << max_l2);
-            return false;
+        log_debug("tCtM: cartesian (" << cartesian[X_AXIS] << ", " << cartesian[Y_AXIS] << ")");
+
+        // Assign motor movements
+        // The UART chip addresses are in a confusing order: E=0, X=1, Y=2, Z=3
+        motors[X_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motors[Y_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS] - _y_max, 2));
+        motors[Z_AXIS] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2));
+        motors[A_AXIS] = sqrt(pow(cartesian[X_AXIS] - _x_max, 2) + pow(cartesian[Y_AXIS], 2));
+        log_debug("tCtM: motors (" << motors[X_AXIS] << ", " << motors[Y_AXIS] << ", " << motors[Z_AXIS] << ", " << motors[A_AXIS] << ")");
+
+        // Because of Bresenham's line algorithm all motor must move simultaneously!
+        // Freewheeling of axis requires different implementation!
+
+        /*
+        if (motors[X_AXIS] - last_motor_mm[X_AXIS] < 0) {
+            Homing::startMove(0, 0, Homing::Phase::None, 250u);
         }
-
-        // determine positive or negative direction?
-        motors[0] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS] - l2, 2)) / pow(C_b, 2);
-        motors[1] = sqrt(pow(cartesian[X_AXIS], 2) + pow(cartesian[Y_AXIS], 2)) / pow(C_b, 2);
-        motors[2] = sqrt(pow(cartesian[X_AXIS] - l1, 2) + pow(cartesian[Y_AXIS], 2)) / pow(C_b, 2);
-        motors[3] = sqrt(pow(cartesian[X_AXIS] - l1, 2) + pow(cartesian[Y_AXIS] - l2, 2)) / pow(C_b, 2);
-
+        if (motors[Y_AXIS] - last_motor_mm[Y_AXIS] > 0) {
+            Homing::startMove(1, 1, Homing::Phase::None, 250u);
+        }
+        if (motors[Z_AXIS] - last_motor_mm[Z_AXIS] > 0) {
+            Homing::startMove(2, 2, Homing::Phase::None, 250u);
+        }
+        if (motors[A_AXIS] - last_motor_mm[A_AXIS] < 0) {
+            Homing::startMove(3, 3, Homing::Phase::None, 250u);
+        }
+        */
+        
         return true;
     }
 
