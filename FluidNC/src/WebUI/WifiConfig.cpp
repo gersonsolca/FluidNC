@@ -832,7 +832,7 @@ namespace WebUI {
                 } else {  // STA failed, reset
                     WiFi.mode(WIFI_OFF);
                     esp_wifi_restore();
-                    delay(100);
+                    delay_ms(100);
                 }
                 // fall through to fallback to AP mode
             case WiFiAP:
@@ -913,8 +913,6 @@ namespace WebUI {
             j.begin_array("AP_LIST");
         }
 
-        // An initial async scanNetworks was issued at startup, so there
-        // is a good chance that scan information is already available.
         int n = WiFi.scanComplete();
         switch (n) {
             case -2:                      // Scan not triggered
